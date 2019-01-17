@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(DT)
+library(leaflet)
 ```
 
 # Data Tidying
@@ -92,5 +93,31 @@ ggsave("figures/region_escapement.png",
        units = "in")
 ```
 
+```{r}
+write.csv(annual_esc, 
+          "derived_data/annual_escapement.csv", 
+          row.names = F)
+```
 
 # Interactive Map
+
+Make a map using leaflet
+
+* find unique locations with lat/lon values
+
+```{r}
+locations <- esc %>% 
+  distinct(Location, Latitude, Longitude) %>% 
+  drop_na()
+
+datatable(locations)
+```
+
+Create our interactive map
+
+```{r}
+leaflet(locations) %>% 
+  addTiles() %>% 
+  addMarkers(~ Longitude, ~ Latitude, popup = ~ Location)
+```
+
