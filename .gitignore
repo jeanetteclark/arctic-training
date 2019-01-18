@@ -38,3 +38,6 @@ rsconnect/
 
 # csv files
 *.csv
+
+# nc files
+*.nc
