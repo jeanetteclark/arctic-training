@@ -14,6 +14,8 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(scales)
+library(leaflet)
+library(DT)
 ```
 
 
@@ -86,3 +88,28 @@ ggsave("figures/regional_escapement.png",
 
 
 # Generate an interactive map
+
+Map the sampling locations for escapement
+
+<br/>
+<br/>
+<br/>
+
+* find distinct lat/lon/location combinations
+
+```{r}
+locations <- esc %>% 
+  distinct(Location, Latitude, Longitude) %>% 
+  drop_na()
+```
+
+```{r, echo = F}
+datatable(locations)
+```
+
+```{r}
+leaflet(locations) %>% 
+  addTiles() %>% 
+  addMarkers(lng = ~Longitude, lat = ~Latitude, popup = ~ Location)
+```
+
