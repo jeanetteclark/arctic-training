@@ -1,16 +1,19 @@
 ---
 title: "Data Visualization"
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, warning = F, message = F}
+```{r, warning = F, message = F, echo = F}
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(scales)
 ```
 
 
@@ -23,13 +26,11 @@ esc <- read.csv(url("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auu
 ```
 
 * calculate annual escapment by species and region
-  + `separate`
-  + `group_by`
-  + `summarize` using the `sum` function
+    + `separate`
+    + `group_by`
+    + `summarize` using the `sum` function
 * filter for just pacific salmon (Sockeye, Chinook, Coho, Pink, Chum)
-  + `filter`
-
-annual_esc
+    + `filter`
 
 ```{r}
 annual_esc <- esc %>% 
@@ -43,25 +44,44 @@ annual_esc <- esc %>%
 
 # Generate some static plots
 
-```{r}
+```{r, echo = F}
 ggplot(annual_esc, mapping = aes(x = Species, y = count, fill = SASAP.Region)) +
   geom_col()
 ```
 
-```{r}
+```{r, echo = F}
 my_theme <- theme_test() +
-  theme(legend.position = "bottom", legend.title = element_blank())
+  theme(legend.position = "bottom", 
+        legend.title = element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 
-```{r}
+```{r, echo = F}
 ggplot(filter(annual_esc, SASAP.Region == "Kodiak"), aes(x = year, y = count, color = Species)) +
   geom_line() +
   geom_point() +
+  scale_y_continuous(labels = comma) +
   ylab("Escapement (num of fish)") +
   xlab("Year") +
   ggtitle("Kodiak Salmon Escapement") +
   my_theme
+```
+
+```{r, fig.width = 7, fig.height = 8, echo = F}
+p <- ggplot(annual_esc, aes(x = year, y = count, color = Species)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(label = comma) +
+  facet_wrap(~SASAP.Region, scales = "free_y", ncol = 2) +
+  my_theme
+p
+
+ggsave("figures/regional_escapement.png", 
+       plot = p,
+       width = 7,
+       height = 8,
+       units = "in")
 ```
 
 
