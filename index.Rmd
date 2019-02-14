@@ -21,6 +21,8 @@ library(DT)
 
 # Reformat the data for plotting
 
+For dyplr/tidyr reference see my [data tidying page](data-tidying.html)
+
 Alaska Department of Fish and Game, Division of Commercial Fisheries. 2017. Daily salmon escapement counts from the OceanAK database, Alaska, 1921-2017. Knowledge Network for Biocomplexity. doi:10.5063/F1S46Q6M.
 
 ```{r}
