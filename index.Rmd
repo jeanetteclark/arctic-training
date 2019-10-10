@@ -3,6 +3,8 @@ title: "My Webpage"
 author: "Jeanette Clark"
 date: "10/10/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(DT) #install.packages("DT")
+library(leaflet)
 ```
 
 
@@ -64,6 +68,7 @@ ggplot(data = filter(annual_esc, SASAP.Region == "Kodiak"),
        mapping = aes(x = Year, y = total_escapement, color = Species)) +
   geom_point() +
   geom_line() +
+  geom_smooth(method = "lm") +
   scale_color_brewer(palette = "Dark2") +
   ylab("Escapement (no. fish)") +
   ggtitle("Kodiak Salmon Escapement") +
@@ -73,12 +78,55 @@ ggplot(data = filter(annual_esc, SASAP.Region == "Kodiak"),
 Escapement over time: all regions
 
 ```{r, fig.width = 7, fig.height = 12, echo = FALSE}
-ggplot(annual_esc, aes(x = Year, y = total_escapement, color = Species)) +
+fig1 <- ggplot(annual_esc, aes(x = Year, y = total_escapement, color = Species)) +
   geom_point() +
   geom_line() +
   facet_wrap(~SASAP.Region, scales = "free_y", ncol = 1) +
   my_theme
+
+fig1
+
+ggsave("figures/escapement.png", fig1, width = 12, height = 7, units = "in")
 ```
 
 
 # Map Sampling Locations
+
+Create a table with unique sampling locations, latitudes, and longitudes
+
+```{r}
+locations <- esc %>% 
+  distinct(Location, Latitude, Longitude) %>% 
+  drop_na()
+```
+
+```{r, echo = FALSE}
+datatable(locations)
+```
+
+```{r}
+leaflet(locations) %>% 
+  addTiles() %>% 
+  addMarkers(lng = ~ Longitude, lat = ~ Latitude, popup = ~ Location)
+```
+
+
+```{r}
+leaflet(locations) %>% 
+  addWMSTiles("https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?",
+              layers = 'GEBCO_LATEST',
+              attribution = "Imagery reproduced from the GEBCO_2014 Grid, version 20150318, www.gebco.net") %>%
+  addCircleMarkers(lng = ~Longitude,
+                   lat = ~Latitude,
+                   popup = ~ Location,
+                   radius = 5,
+                   # set fill properties
+                   fillColor = "salmon",
+                   fillOpacity = 1,
+                   # set stroke properties
+                   stroke = T,
+                   weight = 0.5,
+                   color = "white",
+                   opacity = 1)
+```
+
